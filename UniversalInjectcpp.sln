@@ -2,13 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalInjectcpp", "UniversalInjectcpp\UniversalInjectcpp.vcxproj", "{4A54A7B9-9528-4D95-BA5F-354A9B052B24}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AD7A7BA6-372A-4E31-8301-1655C805750B} = {AD7A7BA6-372A-4E31-8301-1655C805750B}
-	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UInjectDLL", "uinjectdll\uinjectdll.vcxproj", "{AD7A7BA6-372A-4E31-8301-1655C805750B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hookdll", "hookdll\hookdll.vcxproj", "{3CA29240-397D-41E1-8924-EDFDDC414B29}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hookdll", "hookdll\hookdll.vcxproj", "{FD7142FA-63A5-4429-9097-C1EF7DDFEFB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UInjectIME", "UInjectIME\UInjectIME.vcxproj", "{DC33ADC7-DEA5-4455-8744-26210BC4FA77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,14 +17,14 @@ Global
 		{4A54A7B9-9528-4D95-BA5F-354A9B052B24}.Debug|Win32.Build.0 = Debug|Win32
 		{4A54A7B9-9528-4D95-BA5F-354A9B052B24}.Release|Win32.ActiveCfg = Release|Win32
 		{4A54A7B9-9528-4D95-BA5F-354A9B052B24}.Release|Win32.Build.0 = Release|Win32
-		{AD7A7BA6-372A-4E31-8301-1655C805750B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AD7A7BA6-372A-4E31-8301-1655C805750B}.Debug|Win32.Build.0 = Debug|Win32
-		{AD7A7BA6-372A-4E31-8301-1655C805750B}.Release|Win32.ActiveCfg = Release|Win32
-		{AD7A7BA6-372A-4E31-8301-1655C805750B}.Release|Win32.Build.0 = Release|Win32
-		{FD7142FA-63A5-4429-9097-C1EF7DDFEFB3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{FD7142FA-63A5-4429-9097-C1EF7DDFEFB3}.Debug|Win32.Build.0 = Debug|Win32
-		{FD7142FA-63A5-4429-9097-C1EF7DDFEFB3}.Release|Win32.ActiveCfg = Release|Win32
-		{FD7142FA-63A5-4429-9097-C1EF7DDFEFB3}.Release|Win32.Build.0 = Release|Win32
+		{3CA29240-397D-41E1-8924-EDFDDC414B29}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3CA29240-397D-41E1-8924-EDFDDC414B29}.Debug|Win32.Build.0 = Debug|Win32
+		{3CA29240-397D-41E1-8924-EDFDDC414B29}.Release|Win32.ActiveCfg = Release|Win32
+		{3CA29240-397D-41E1-8924-EDFDDC414B29}.Release|Win32.Build.0 = Release|Win32
+		{DC33ADC7-DEA5-4455-8744-26210BC4FA77}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC33ADC7-DEA5-4455-8744-26210BC4FA77}.Debug|Win32.Build.0 = Debug|Win32
+		{DC33ADC7-DEA5-4455-8744-26210BC4FA77}.Release|Win32.ActiveCfg = Release|Win32
+		{DC33ADC7-DEA5-4455-8744-26210BC4FA77}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

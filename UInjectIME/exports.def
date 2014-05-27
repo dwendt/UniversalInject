@@ -1,0 +1,25 @@
+LIBRARY         UInjectIME
+
+EXPORTS
+				IMESetPubString
+				IMEClearPubString
+
+                ImeConversionList
+                ImeDestroy
+                ImeEscape
+                ImeProcessKey
+                ImeSelect
+                ImeSetActiveContext
+                ImeSetCompositionString
+                ImeToAsciiEx
+                NotifyIME
+
+                ImeRegisterWord
+                ImeUnregisterWord
+                ImeGetRegisterWordStyle
+                ImeEnumRegisterWord
+
+                UIWndProc
+				StatusWndProc
+                CompWndProc
+                CandWndProc
