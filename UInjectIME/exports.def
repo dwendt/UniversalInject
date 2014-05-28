@@ -5,8 +5,10 @@ EXPORTS
 				IMEClearPubString
 
                 ImeConversionList
+                ImeConfigure
                 ImeDestroy
                 ImeEscape
+                ImeInquire
                 ImeProcessKey
                 ImeSelect
                 ImeSetActiveContext
@@ -18,6 +20,7 @@ EXPORTS
                 ImeUnregisterWord
                 ImeGetRegisterWordStyle
                 ImeEnumRegisterWord
+
 
                 UIWndProc
 				StatusWndProc

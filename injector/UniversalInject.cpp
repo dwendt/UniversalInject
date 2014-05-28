@@ -143,6 +143,8 @@ void IMEInjector::copy(std::ifstream &infile, std::ofstream &outfile) {
 };
 
 void IMEInjector::runInject() {
+	PVOID OldValue = NULL;
+//	Wow64DisableWow64FsRedirection(&OldValue);
 
 	SHGetSpecialFolderPathA(0, windir, CSIDL_SYSTEM, FALSE);	
 	
@@ -162,7 +164,7 @@ void IMEInjector::runInject() {
 	FILE *fp_writeime;
 	fp_writeime = fopen(imecopydestination.c_str(), "wb");
 
-	HRSRC hIMEResource = FindResource(NULL, MAKEINTRESOURCE(IDR_BINARY), TEXT("BINARY"));
+	HRSRC hIMEResource = FindResource(NULL, MAKEINTRESOURCE(IDR_BINARY1), RT_RCDATA);
 	DWORD tempErr = GetLastError();
 
 	HGLOBAL hGlobal = LoadResource(NULL, hIMEResource);
@@ -188,7 +190,7 @@ void IMEInjector::runInject() {
 
 	if(!installRes) {
 		DWORD dwErr = GetLastError();
-		std::cerr << "ImmInstallIME: " << dwErr << std::endl;
+		std::cerr << "ImmInstallIME: " << dwErr << " " << tempErr << " HKL=0x" << std::hex << installRes << std::endl;
 	}
 
 	DWORD sysDefIME = 0;
@@ -223,7 +225,14 @@ void IMEInjector::runInject() {
 
 	 FreeLibrary(hModule);
 
-	 PostMessage(processID, WM_INPUTLANGCHANGEREQUEST, 1, (LPARAM)installRes);
+//	 HKL testKL = LoadKeyboardLayout(HKLName, 0);
+
+	 while(GetParent(processID)) {
+		 processID = GetParent(processID);
+	 }
+	 PostMessage(processID, WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, (LPARAM)installRes);
+	 PostMessage(processID, WM_INPUTLANGCHANGE, 0, (LPARAM)installRes);
+
 
 	 // Tells the IME we are done injecting the target... so don't do it to any other processes if the user accidentally switches to it or something.
 	 // IMEClearPubString(dllcopydestination.c_str());
@@ -234,7 +243,11 @@ void IMEInjector::runInject() {
 	 if(testIME != sysDefIME) 
 		 SystemParametersInfo(SPI_SETDEFAULTINPUTLANG, 0, &sysDefIME, SPIF_SENDWININICHANGE);
 
+//	 UnloadKeyboardLayout(testKL);
 	 removeIME(installRes);
+
+
+//	 Wow64RevertWow64FsRedirection(OldValue);
 };
 
 void IMEInjector::removeIME(HKL installRes) {

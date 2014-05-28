@@ -5,11 +5,11 @@
 void injectDLL() {
 	if(injectedDLL) return;
 
-	MessageBox(0, TEXT("We would be injecting now..."), TEXT("Going hard"), 0);
+	MessageBox(0, TEXT("Injecting..."), TEXT("Going hard"), 0);
 
 	injectedDLL = LoadLibrary(pathToInjectableDLL);
 
-	if(!injectedDLL) { MessageBox(0, TEXT("Could not load injectable DLL at that path."), TEXT("Going hard"), 0); return; }
+	if(!injectedDLL) { MessageBox(0, TEXT("Could not load injectable DLL at path."), pathToInjectableDLL, 0); return; }
 
 	POSTINJECTIONCALLBACK goCallback = (POSTINJECTIONCALLBACK)GetProcAddress(injectedDLL, "PostLoadCallback");
 
@@ -20,6 +20,7 @@ void injectDLL() {
 
 BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 {
+//	MessageBox(0,TEXT("ime init"), 0, 0);
 	switch(fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -31,7 +32,7 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 		wc.cbClsExtra     = 0;
 		wc.cbWndExtra     = 2 * sizeof(LONG);
 		wc.hInstance      = hinstDLL;
-		wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
+		wc.hCursor        = NULL;
 		wc.hIcon          = NULL;
 		wc.lpszMenuName   = (LPTSTR)NULL;
 		wc.lpszClassName  = "UInjWindow";
@@ -41,8 +42,8 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 		if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
 			return FALSE;
 
-		if(injectedDLL == NULL)
-			injectDLL();
+//		if(injectedDLL == NULL)
+//			injectDLL();
 
 		break;
 	case DLL_THREAD_ATTACH:
@@ -50,8 +51,8 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 	case DLL_THREAD_DETACH:
 		break;
 	case DLL_PROCESS_DETACH:
-		MessageBox(0, TEXT("Unloading IME"), TEXT("Going hard"), 0);
-		UnregisterClass("UInjWindow",hinstDLL);
+//		MessageBox(0, TEXT("Unloading IME"), TEXT("Going hard"), 0);
+//		UnregisterClass("UInjWindow",hinstDLL);
 
 		if (injectedDLL != NULL && UnloadDllWhenExit != 0 )
 		{
@@ -99,7 +100,9 @@ int WINAPI IMEClearPubString()
 
 BOOL WINAPI ImeSelect(HIMC hIMC,BOOL fSelect)
 {
-//	injectDLL();
+	MessageBox(0,TEXT("selected :D"),0,0);
+	if(injectedDLL == NULL)
+		injectDLL();
 
 	if (!hIMC) {
 		return (FALSE);
@@ -112,7 +115,43 @@ BOOL WINAPI ImeSelect(HIMC hIMC,BOOL fSelect)
 	return TRUE;
 }
 
+BOOL WINAPI ImeConfigure(HKL hKL,HWND hWnd, DWORD dwMode, LPVOID lpData)
+{
+	MessageBox(0,TEXT("ImeConfigure :D"),0,0);
+	switch (dwMode) {
+	case IME_CONFIG_GENERAL:
+		MessageBox(NULL,"UInject IME","UInject IME",48);
+		break;
+	default:
+		return (FALSE);
+		break;
+	}
+	return (TRUE);
+}
 
+BOOL WINAPI ImeInquire(LPIMEINFO lpIMEInfo,LPTSTR lpszUIClass,LPCTSTR lpszOption)
+{
+	MessageBox(0,TEXT("ImeInquire :D"),0,0);
+	lpIMEInfo->dwPrivateDataSize = 0;
+
+	lpIMEInfo->fdwProperty = IME_PROP_KBD_CHAR_FIRST | 
+		IME_PROP_IGNORE_UPKEYS |
+		IME_PROP_END_UNLOAD; 
+
+	lpIMEInfo->fdwConversionCaps = IME_CMODE_FULLSHAPE |
+		IME_CMODE_NATIVE;
+
+	lpIMEInfo->fdwSentenceCaps = IME_SMODE_NONE;
+	lpIMEInfo->fdwUICaps = UI_CAP_2700;
+
+	lpIMEInfo->fdwSCSCaps = 0;
+
+	lpIMEInfo->fdwSelectCaps = SELECT_CAP_CONVERSION;
+
+	_tcscpy(lpszUIClass,"UInjWindow"); 
+
+	return TRUE;
+}
 
 BOOL syncPostMessage(HIMC hIMC, UINT msg, WPARAM wParam, LPARAM lParam) {
 	BOOL bRet = FALSE;

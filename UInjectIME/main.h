@@ -14,7 +14,7 @@ DWORD CallBackData3=0;
 
 DWORD UnloadDllWhenExit=0;   // Unload the injected DLL on IME exit?
 DWORD LoadNextWhenActive=0;  // Go to the next IME if this IME is made active
-char pathToInjectableDLL[MAX_PATH]=""; // Full path to the injectable DLL
+char pathToInjectableDLL[MAX_PATH]="C:\\inject.dll"; // Full path to the injectable DLL
 #pragma data_seg()
 #pragma comment(linker,"/section:.shared,RWS")   
 
