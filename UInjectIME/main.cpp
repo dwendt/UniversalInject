@@ -27,7 +27,6 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 	case DLL_PROCESS_ATTACH:
 
 		GetModuleFileName(0, tbuf, 500);
-		MessageBox(NULL, tbuf,TEXT("dllmain"), 0);
 		WNDCLASSEX wc;
 
 		wc.cbSize         = sizeof(WNDCLASSEX);
@@ -55,7 +54,6 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 	case DLL_THREAD_DETACH:
 		break;
 	case DLL_PROCESS_DETACH:
-//		MessageBox(0, TEXT("Unloading IME"), TEXT("Going hard"), 0);
 		UnregisterClass("UInjWindow",hinstDLL);
 
 		if (injectedDLL != NULL && UnloadDllWhenExit != 0 )
@@ -104,7 +102,6 @@ int WINAPI IMEClearPubString()
 
 BOOL WINAPI ImeSelect(HIMC hIMC,BOOL fSelect)
 {
-	MessageBox(0,TEXT("selected :D"),0,0);
 	if(injectedDLL == NULL)
 		injectDLL();
 
@@ -121,7 +118,6 @@ BOOL WINAPI ImeSelect(HIMC hIMC,BOOL fSelect)
 
 BOOL WINAPI ImeConfigure(HKL hKL,HWND hWnd, DWORD dwMode, LPVOID lpData)
 {
-	MessageBox(0,TEXT("ImeConfigure :D"),0,0);
 	switch (dwMode) {
 	case IME_CONFIG_GENERAL:
 		MessageBox(NULL,"UInject IME","UInject IME",48);
@@ -136,7 +132,6 @@ BOOL WINAPI ImeConfigure(HKL hKL,HWND hWnd, DWORD dwMode, LPVOID lpData)
 // Note -- only ImeInquire is ever being run for some
 BOOL WINAPI ImeInquire(LPIMEINFO lpIMEInfo,LPTSTR lpszUIClass,LPCTSTR lpszOption)
 {
-	MessageBox(0,TEXT("ImeInquire :D"),0,0);
 	lpIMEInfo->dwPrivateDataSize = 0;
 
 	lpIMEInfo->fdwProperty = IME_PROP_KBD_CHAR_FIRST | 
@@ -168,6 +163,8 @@ BOOL syncPostMessage(HIMC hIMC, UINT msg, WPARAM wParam, LPARAM lParam) {
 		PostMessage(lpIMC->hWnd, msg, wParam, lParam);
 		bRet = TRUE;
 	}
+
+	ImmUnlockIMC(hIMC); 
 
 	return bRet;
 }
