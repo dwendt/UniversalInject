@@ -19,6 +19,7 @@ public:
 
 	void runInject();
 
+	BOOL FileExists(LPCTSTR szPath);
 	void copy(std::ifstream &infile, std::ofstream &outfile);
 	void removeIME(HKL installRes);
 	HWND processID;

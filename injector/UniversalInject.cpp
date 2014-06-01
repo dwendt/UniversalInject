@@ -117,6 +117,14 @@ IMEInjector::~IMEInjector() {
 
 };
 
+BOOL IMEInjector::FileExists(LPCTSTR szPath)
+{
+	DWORD dwAttrib = GetFileAttributes(szPath);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
 void IMEInjector::copy(std::ifstream &infile, std::ofstream &outfile) {
 	char * buffer;
 	long size;
@@ -124,6 +132,11 @@ void IMEInjector::copy(std::ifstream &infile, std::ofstream &outfile) {
 	// get size of file
 	infile.seekg(0,std::ifstream::end);
 	size=infile.tellg();
+	if(!size) { 
+		MessageBox(0, TEXT("Failed to get size of file to copy"), 0, 0);
+		infile.close();
+		return;
+	}
 	infile.seekg(0);
 
 	// allocate memory for file content
@@ -158,6 +171,9 @@ void IMEInjector::runInject() {
 	std::ifstream dllcopyfrom (loadpath,std::fstream::binary);
 	std::ofstream dllcopyto (dllcopydestination,std::fstream::trunc|std::fstream::binary);
  
+	if(!FileExists(loadpath.c_str())) {
+		MessageBox(0, TEXT("Target DLL to inject does not exist"), loadpath.c_str(), 0);
+	}
 	copy(dllcopyfrom, dllcopyto);
 
 
@@ -203,15 +219,17 @@ void IMEInjector::runInject() {
 	GetKeyboardLayoutNameA(HKLName);
 
 	ActivateKeyboardLayout(installRes, 0);
-//	SetErrorMode(0);
-	HINSTANCE hModule = LoadLibraryA("UInjectIME.dll");
+
+	HINSTANCE hModule = LoadLibraryA("UInject.ime");
 	if(hModule == NULL) {
-		MessageBoxA(NULL, TEXT("fuck no ime loaded :("), TEXT("ime couldnt be loaded"), NULL);
+		MessageBoxA(NULL, TEXT("Could not load IME dll"), TEXT("Could not load IME DLL"), NULL);
 		int err = GetLastError();
 		removeIME(installRes);
 
 		exit(0);
 	}
+
+	// Feed our extra data to the shared memory section.
 	IMESetPubStringFunc IMESetPubString = (IMESetPubStringFunc)GetProcAddress(hModule, "IMESetPubString");
 	if(IMESetPubString == NULL) {
 		MessageBoxA(NULL, TEXT("no IMESetPubString :("), TEXT("ime couldnt IMESetPubString"), NULL);
@@ -244,7 +262,7 @@ void IMEInjector::runInject() {
 		 SystemParametersInfo(SPI_SETDEFAULTINPUTLANG, 0, &sysDefIME, SPIF_SENDWININICHANGE);
 
 //	 UnloadKeyboardLayout(testKL);
-	 removeIME(installRes);
+//	 removeIME(installRes);
 
 
 //	 Wow64RevertWow64FsRedirection(OldValue);
