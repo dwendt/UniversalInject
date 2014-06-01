@@ -30,3 +30,6 @@ _ReSharper*/
 *.bin
 *.sdf
 *.dll
+
+
+!imm32.lib
