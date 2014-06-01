@@ -20,10 +20,14 @@ void injectDLL() {
 
 BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 {
-//	MessageBox(0,TEXT("ime init"), 0, 0);
+	char tbuf[500] = "";
+
 	switch(fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
+
+		GetModuleFileName(0, tbuf, 500);
+		MessageBox(NULL, tbuf,TEXT("dllmain"), 0);
 		WNDCLASSEX wc;
 
 		wc.cbSize         = sizeof(WNDCLASSEX);
@@ -32,10 +36,10 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 		wc.cbClsExtra     = 0;
 		wc.cbWndExtra     = 2 * sizeof(LONG);
 		wc.hInstance      = hinstDLL;
-		wc.hCursor        = NULL;
+		wc.hCursor        = NULL; //IDC_ARROW
 		wc.hIcon          = NULL;
 		wc.lpszMenuName   = (LPTSTR)NULL;
-		wc.lpszClassName  = "UInjWindow";
+		wc.lpszClassName  = TEXT("UInjWindow");
 		wc.hbrBackground  = NULL;
 		wc.hIconSm        = NULL;
 
@@ -52,7 +56,7 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 //		MessageBox(0, TEXT("Unloading IME"), TEXT("Going hard"), 0);
-//		UnregisterClass("UInjWindow",hinstDLL);
+		UnregisterClass("UInjWindow",hinstDLL);
 
 		if (injectedDLL != NULL && UnloadDllWhenExit != 0 )
 		{
@@ -129,6 +133,7 @@ BOOL WINAPI ImeConfigure(HKL hKL,HWND hWnd, DWORD dwMode, LPVOID lpData)
 	return (TRUE);
 }
 
+// Note -- only ImeInquire is ever being run for some
 BOOL WINAPI ImeInquire(LPIMEINFO lpIMEInfo,LPTSTR lpszUIClass,LPCTSTR lpszOption)
 {
 	MessageBox(0,TEXT("ImeInquire :D"),0,0);
