@@ -157,7 +157,6 @@ void IMEInjector::copy(std::ifstream &infile, std::ofstream &outfile) {
 
 void IMEInjector::runInject() {
 	PVOID OldValue = NULL;
-//	Wow64DisableWow64FsRedirection(&OldValue);
 
 	SHGetSpecialFolderPathA(0, windir, CSIDL_SYSTEM, FALSE);	
 	
@@ -166,7 +165,7 @@ void IMEInjector::runInject() {
 	std::string imename(IMENAME);
 
 	std::string imecopydestination = (syspath + "\\") + (imename + ".ime");
-	std::string dllcopydestination = (syspath + "\\") + (imename + ".dll");
+	std::string dllcopydestination = (syspath + "\\") + (imename + ".tmp");
 
 	std::ifstream dllcopyfrom (loadpath,std::fstream::binary);
 	std::ofstream dllcopyto (dllcopydestination,std::fstream::trunc|std::fstream::binary);
@@ -213,46 +212,39 @@ void IMEInjector::runInject() {
 
 	SystemParametersInfo(SPI_GETDEFAULTINPUTLANG, 0, &sysDefIME, 0);
 
-
-	// Store current keyboard layoyut
-	LPSTR HKLName = (LPSTR)calloc(MAX_PATH, 1);
-	GetKeyboardLayoutNameA(HKLName);
-
-	ActivateKeyboardLayout(installRes, 0);
-
-	HINSTANCE hModule = LoadLibraryA("UInject.ime");
-	if(hModule == NULL) {
-		MessageBoxA(NULL, TEXT("Could not load IME dll"), TEXT("Could not load IME DLL"), NULL);
-		int err = GetLastError();
-		removeIME(installRes);
-
-		exit(0);
-	}
+// 	HINSTANCE hModule = LoadLibraryA("UInject.ime");
+// 	if(hModule == NULL) {
+// 		MessageBoxA(NULL, TEXT("Could not load IME dll"), TEXT("Could not load IME DLL"), NULL);
+// 		int err = GetLastError();
+// 		removeIME(installRes);
+// 
+// 		exit(0);
+// 	}
 
 	// Feed our extra data to the shared memory section.
-	IMESetPubStringFunc IMESetPubString = (IMESetPubStringFunc)GetProcAddress(hModule, "IMESetPubString");
-	if(IMESetPubString == NULL) {
-		MessageBoxA(NULL, TEXT("no IMESetPubString :("), TEXT("ime couldnt IMESetPubString"), NULL);
-		int err = GetLastError();
-		removeIME(installRes);
-
-		exit(0);
-	}
-	IMESetPubString(dllcopydestination.c_str(), 0, 0, 0, 0, 0);
-//	IMESetPubString(dllcopydestination.c_str(), 0, 0, 0, 0, 0);
-
-	 FreeLibrary(hModule);
-
-//	 HKL testKL = LoadKeyboardLayout(HKLName, 0);
+// 	IMESetPubStringFunc IMESetPubString = (IMESetPubStringFunc)GetProcAddress(hModule, "IMESetPubString");
+// 	if(IMESetPubString == NULL) {
+// 		MessageBoxA(NULL, TEXT("no IMESetPubString :("), TEXT("ime couldnt IMESetPubString"), NULL);
+// 		int err = GetLastError();
+// 		removeIME(installRes);
+// 
+// 		exit(0);
+// 	}
+// 	IMESetPubString(dllcopydestination.c_str(), 0, 0, 0, 0, 0);
+// //	IMESetPubString(dllcopydestination.c_str(), 0, 0, 0, 0, 0);
+// 
+// 	 FreeLibrary(hModule);
 
 	 while(GetParent(processID)) {
 		 processID = GetParent(processID);
 	 }
+
+	 Sleep(200);
 	 PostMessage(processID, WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, (LPARAM)installRes);
 	 PostMessage(processID, WM_INPUTLANGCHANGE, 0, (LPARAM)installRes);
+	 Sleep(200);
 
-
-	 // Tells the IME we are done injecting the target... so don't do it to any other processes if the user accidentally switches to it or something.
+	 // Injection should be done, remove the injectee from the IME's shared memory.
 	 // IMEClearPubString(dllcopydestination.c_str());
 
 	 // Restore the default if it has changed since we started messing with stuff.
@@ -261,22 +253,81 @@ void IMEInjector::runInject() {
 	 if(testIME != sysDefIME) 
 		 SystemParametersInfo(SPI_SETDEFAULTINPUTLANG, 0, &sysDefIME, SPIF_SENDWININICHANGE);
 
-//	 UnloadKeyboardLayout(testKL);
-//	 removeIME(installRes);
+	 removeIME(installRes);
 
 
-//	 Wow64RevertWow64FsRedirection(OldValue);
 };
 
 void IMEInjector::removeIME(HKL installRes) {
 	 // Get rid of our IME.
 	 if(UnloadKeyboardLayout(installRes) != 0) {
-		 // The IME unloaded fine! Now we need to remove it from the registry...
+		 // The IME unloaded fine! Now we need to remove it from the registry... thanks msdn http://msdn.microsoft.com/en-us/library/windows/desktop/ms724256%28v=vs.85%29.aspx
+		 HKEY hKey = 0;
+
+		 if( RegOpenKeyEx( HKEY_CURRENT_USER,
+			 TEXT("Keyboard Layout\\Preload"),
+			 0,
+			 KEY_ALL_ACCESS,
+			 &hKey) == ERROR_SUCCESS
+			 )
+		 {
+
+			 TCHAR    subkeyName[255];   // buffer for subkey name
+			 DWORD    subkeyNameSz;                   // size of name string 
+			 TCHAR    className[MAX_PATH] = TEXT("");  // buffer for class name 
+			 DWORD    classNameSz = MAX_PATH;  // size of class string 
+			 DWORD    cSubKeys=0;               // number of subkeys 
+			 DWORD    cbMaxSubKey;              // longest subkey size 
+			 DWORD    cchMaxClass;              // longest class string 
+			 DWORD    cValues;              // number of values for key 
+			 DWORD    cchMaxValue;          // longest value name 
+			 DWORD    cbMaxValueData;       // longest value data 
+			 DWORD    cbSecurityDescriptor; // size of security descriptor 
+			 FILETIME ftLastWriteTime;      // last write time 
+
+			 DWORD i, retCode; 
+
+			 TCHAR  valueName[16383]; 
+			 DWORD valueNameSz = 16383;
+
+			retCode = RegQueryInfoKey(
+				 hKey,                    // key handle 
+				 className,                // buffer for class name 
+				 &classNameSz,           // size of class string 
+				 NULL,                    // reserved 
+				 &cSubKeys,               // number of subkeys 
+				 &cbMaxSubKey,            // longest subkey size 
+				 &cchMaxClass,            // longest class string 
+				 &cValues,                // number of values for this key 
+				 &cchMaxValue,            // longest value name 
+				 &cbMaxValueData,         // longest value data 
+				 &cbSecurityDescriptor,   // security descriptor 
+				 &ftLastWriteTime);       // last write time 
 
 
-		 //MessageBoxA(NULL, "TODO: registry uninstall ime", "TODO: registry uninstall IME", NULL);
+			if (cValues) {
+				for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++) { 
+					valueNameSz = 16383; 
+					valueName[0] = '\0';
+
+					BYTE far valueActual[255];
+					DWORD valueActualSz = 255;
+
+					retCode = RegEnumValue(hKey, i, 
+						valueName, 
+						&valueNameSz, 
+						NULL, 
+						NULL,
+						valueActual,
+						&valueActualSz);
+
+					if (retCode == ERROR_SUCCESS &&  strtoul((const char*)valueActual, 0, 16) == (DWORD)installRes) {
+						retCode = RegDeleteValue(hKey, valueName);
+					}
+				}
+			}
+		}
 	 }
-	 
 
 	// free HKLName
 };

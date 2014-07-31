@@ -5,8 +5,6 @@
 void injectDLL() {
 	if(injectedDLL) return;
 
-	MessageBox(0, TEXT("Injecting..."), TEXT("Going hard"), 0);
-
 	injectedDLL = LoadLibrary(pathToInjectableDLL);
 
 	if(!injectedDLL) { MessageBox(0, TEXT("Could not load injectable DLL at path."), pathToInjectableDLL, 0); return; }
@@ -26,16 +24,14 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 	{
 	case DLL_PROCESS_ATTACH:
 
-		GetModuleFileName(0, tbuf, 500);
-		WNDCLASSEX wc;
-
+ 		WNDCLASSEX wc;
 		wc.cbSize         = sizeof(WNDCLASSEX);
 		wc.style          = CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS | CS_IME;
 		wc.lpfnWndProc    = UIWndProc;
 		wc.cbClsExtra     = 0;
 		wc.cbWndExtra     = 2 * sizeof(LONG);
 		wc.hInstance      = hinstDLL;
-		wc.hCursor        = NULL; //IDC_ARROW
+		wc.hCursor        = LoadCursor(NULL, IDC_ARROW); //IDC_ARROW
 		wc.hIcon          = NULL;
 		wc.lpszMenuName   = (LPTSTR)NULL;
 		wc.lpszClassName  = TEXT("UInjWindow");
@@ -45,8 +41,8 @@ BOOL CALLBACK DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
 		if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
 			return FALSE;
 
-//		if(injectedDLL == NULL)
-//			injectDLL();
+		if(injectedDLL == NULL)
+			injectDLL();
 
 		break;
 	case DLL_THREAD_ATTACH:
