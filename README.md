@@ -7,11 +7,11 @@ Code in this project is inspired by the Chinese SUPER-EC library for EasyLanguag
 
 ## What exactly does this do?
 
-* Creates a new keyboard IME, copies UInject.ime into C:\Windows\System32\ (syswow64 on 64bit-systems)
-* Tells the IME what DLL we want to inject
-* Sends a message to the target window to load the IME
-* The IME injects the desired DLL and unloads itself.
-* **TODO:** The injector uninstalls the IME.
+- [x] Creates a new keyboard IME, copies UInject.ime into C:\Windows\System32\ (syswow64 on 64bit-systems)
+- [x] Tells the IME what DLL we want to inject
+- [x] Sends a message to the target window to load the IME
+- [x] The IME injects the desired DLL and unloads itself.
+- [x] The injector uninstalls the IME.
 
 
 ## Projects
@@ -21,7 +21,7 @@ handles management of the IME, deciding what and where to inject.
 
 ### UInjectIME
 
-the IME that is installed.
+the IME that is installed, handles mapping our desired injectee.
 
 ### Exampledll
 
